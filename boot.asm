@@ -1,3 +1,7 @@
+; This is done by following a tutorial series and the main intention of comments is to make it easier for the reader to read the code 
+; as well as a reminder for myself as this is a learning process for me 
+; (having written an emulator makes it way more approchabele and easier to understand though as they fundamentally work similar or even the same)
+
 [BITS 16]                   ; 16 Bit mode (in real mode)
 [ORG 0x7c00]                ; supposed to run at memory location 0x7c00 -> BIOS loads code from first sector to address 0x7c00
 
