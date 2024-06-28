@@ -6,8 +6,8 @@ start:
 
     mov eax,0x80000000
     cpuid
-    cmp eax,0x80000001      ; checks if 0x80000001 can be passed as a parameter
-    jb NotSupported
+    cmp eax,0x80000001      ; checks if 0x80000001 (stored in eax) is supported by cpuid by comparing with result in eax
+    jb NotSupported         ; jumps if result below 0x80000001
 
     mov eax,0x80000001
     cpuid                   ; reads cpu ident and feature info 

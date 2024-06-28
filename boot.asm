@@ -50,7 +50,7 @@ End:
 DriveId:    db 0
 Message:    db "boot process error"
 MessageLen: equ $-Message
-ReadPacket: times 16 db 0   ; structure passed to loader
+ReadPacket: times 16 db 0   ; structure used for interrupt vector 0x13 -> read sectors of loader
 
 times (0x1be-($-$$)) db 0   ; ($-$$) -> start of code minus end of message
     ; boot entry    -> boot USB flash drive as hard disk (not e.g. floppy disk)
