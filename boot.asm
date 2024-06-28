@@ -8,7 +8,33 @@ start:
     mov ss,ax
     mov sp,0x7c00           ; init stack pointer
 
-PrintMessage:
+TestDiskExtension:
+    mov [DriveId],dl
+    mov ah,0x41
+    mov bx,0x55aa
+    int 0x13                ; sets carry flag if disk extension service not supported
+    jc NotSupported         ; jump if carry
+    cmp bx,0xaa55           ; compare bx -> neq -> disk extension service not supported
+    jne NotSupported        ; jump not equal
+
+LoadLoader:
+    mov si,ReadPacket       ; load structure
+    mov word[si],0x10       ; offset 0: size
+    mov word[si+2],5        ; offset 2: num sectors
+    mov word[si+4],0x7e00   ; offset 4: offset loader
+    mov word[si+6],0        ; offset 6: segment
+    mov dword[si+8],1       ; offset 8: address lo
+    mov dword[si+0xc],0     ; offset 0xc: address hi
+    mov dl,[DriveId]
+    mov ah,0x42             ; use disk extension service
+    int 0x13                ; read sectors -> fail: set carry flag
+    jc ReadError
+
+    mov dl,[DriveId]        ; store drive id in dl
+    jmp 0x7e00              ; jump to loader at address 0x7e00
+
+ReadError:
+NotSupported:
     mov ah,0x13             ; ah = 0x13 == print string (function code in ah)
     mov al,1                ; al = 1 (write mode -> cursor placed at end of string)
     mov bx,0xa              ; bx (bh == page number, bl == character attributes)
@@ -21,8 +47,10 @@ End:
     hlt
     jmp End
 
-Message:    db "Hello"
+DriveId:    db 0
+Message:    db "boot process error"
 MessageLen: equ $-Message
+ReadPacket: times 16 db 0   ; structure passed to loader
 
 times (0x1be-($-$$)) db 0   ; ($-$$) -> start of code minus end of message
     ; boot entry    -> boot USB flash drive as hard disk (not e.g. floppy disk)
